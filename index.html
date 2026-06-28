@@ -1,0 +1,3470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Noto+Serif+SC:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --white: #fafafa;
+            --gray-100: #1a1a1a;
+            --gray-200: #262626;
+            --gray-300: #404040;
+            --gray-400: #737373;
+            --gray-500: #a3a3a3;
+            --gray-600: #d4d4d4;
+            --accent: #c9a87c;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+            --ease-in-out-soft: cubic-bezier(0.45, 0, 0.55, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            line-height: 1.8;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .threads-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .threads-bg canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-meta, .hero-title, .hero-subtitle {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-scroll {
+            z-index: 1;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        ::selection {
+            background: var(--white);
+            color: var(--black);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            mix-blend-mode: difference;
+        }
+
+        .nav-logo {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            color: var(--white);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            position: relative;
+            transition: opacity 0.4s var(--ease-out-expo);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--white);
+            transition: width 0.5s var(--ease-out-expo);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8rem 3rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s var(--ease-out-expo) 0.2s forwards;
+        }
+
+        .hero-meta-left, .hero-meta-right {
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--gray-500);
+        }
+
+        .hero-meta-right {
+            text-align: right;
+        }
+
+        .hero-title {
+            font-family: 'Noto Serif SC', 'Fraunces', serif;
+            font-size: clamp(3rem, 10vw, 9rem);
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title-line {
+            display: block;
+            overflow: hidden;
+        }
+
+        .hero-title-line span {
+            display: inline-block;
+            transform: translateY(100%);
+            animation: slideUp 1.2s var(--ease-out-expo) forwards;
+        }
+
+        .hero-title-line:nth-child(1) span { animation-delay: 0.3s; }
+        .hero-title-line:nth-child(2) span { animation-delay: 0.45s; }
+        .hero-title-line:nth-child(3) span { animation-delay: 0.6s; }
+
+        .hero-title em {
+            font-style: italic;
+            font-family: 'Fraunces', serif;
+            font-weight: 300;
+            color: var(--gray-400);
+        }
+
+        .hero-subtitle {
+            max-width: 520px;
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: var(--gray-600);
+            margin-left: auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s var(--ease-out-expo) 0.9s forwards;
+        }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 3rem;
+            left: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gray-400);
+            opacity: 0;
+            animation: fadeIn 1s var(--ease-out-expo) 1.2s forwards;
+        }
+
+        .scroll-line {
+            width: 60px;
+            height: 1px;
+            background: var(--gray-300);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scroll-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            animation: scrollLine 2s var(--ease-in-out-soft) infinite;
+        }
+
+        @keyframes scrollLine {
+            0% { left: -100%; }
+            50% { left: 0; }
+            100% { left: 100%; }
+        }
+
+        section {
+            padding: 8rem 3rem;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: var(--gray-400);
+            margin-bottom: 4rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 24px;
+            height: 1px;
+            background: var(--gray-300);
+        }
+
+        .about {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 6rem;
+            align-items: start;
+        }
+
+        .about-image {
+            aspect-ratio: 3/4;
+            background: linear-gradient(135deg, var(--gray-200) 0%, var(--gray-100) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 5rem;
+            font-weight: 400;
+            color: var(--gray-300);
+        }
+
+        .about-content h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            font-weight: 400;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+            margin-bottom: 2.5rem;
+        }
+
+        .about-content p {
+            font-size: 0.95rem;
+            line-height: 2;
+            color: var(--gray-600);
+            margin-bottom: 1.5rem;
+            max-width: 600px;
+        }
+
+        .about-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 4rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .stat-number {
+            font-family: 'Fraunces', serif;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            color: var(--gray-500);
+        }
+
+        .experience-list {
+            max-width: 900px;
+        }
+
+        .experience-item {
+            padding: 2.5rem 0;
+            border-bottom: 1px solid var(--gray-200);
+            display: grid;
+            grid-template-columns: 140px 1fr auto;
+            gap: 3rem;
+            align-items: start;
+            cursor: pointer;
+            transition: padding 0.5s var(--ease-out-expo);
+            position: relative;
+        }
+
+        .experience-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: var(--gray-100);
+            transition: width 0.6s var(--ease-out-expo);
+            z-index: -1;
+        }
+
+        .experience-item:hover::before {
+            width: calc(100% + 6rem);
+            padding-left: 6rem;
+            margin-left: -6rem;
+        }
+
+        .experience-year {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            font-variant-numeric: tabular-nums;
+            padding-top: 0.25rem;
+        }
+
+        .experience-info h3 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.25rem;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.5rem;
+            transition: transform 0.4s var(--ease-out-expo);
+        }
+
+        .experience-item:hover .experience-info h3 {
+            transform: translateX(8px);
+        }
+
+        .experience-company {
+            font-size: 0.875rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            letter-spacing: 0.02em;
+        }
+
+        .experience-desc {
+            font-size: 0.9rem;
+            line-height: 1.9;
+            color: var(--gray-500);
+            max-width: 520px;
+        }
+
+        .experience-arrow {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--gray-200);
+            border-radius: 50%;
+            transition: all 0.4s var(--ease-out-expo);
+        }
+
+        .experience-item:hover .experience-arrow {
+            background: var(--black);
+            border-color: var(--black);
+            transform: rotate(-45deg);
+        }
+
+        .experience-arrow svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--gray-500);
+            transition: stroke 0.4s var(--ease-out-expo);
+        }
+
+        .experience-item:hover .experience-arrow svg {
+            stroke: var(--white);
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--gray-200);
+            margin-top: 2rem;
+        }
+
+        .skill-category {
+            background: var(--white);
+            padding: 3rem 2rem;
+            transition: background 0.4s var(--ease-out-expo);
+        }
+
+        .skill-category:hover {
+            background: var(--gray-100);
+        }
+
+        .skill-category h4 {
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            color: var(--gray-400);
+            margin-bottom: 1.5rem;
+        }
+
+        .skill-list {
+            list-style: none;
+        }
+
+        .skill-list li {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.05rem;
+            font-weight: 400;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--gray-100);
+            transition: color 0.3s var(--ease-out-expo), transform 0.3s var(--ease-out-expo);
+        }
+
+        .skill-category:hover .skill-list li {
+            transform: translateX(4px);
+        }
+
+        .skill-list li:last-child {
+            border-bottom: none;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .project-card {
+            position: relative;
+            aspect-ratio: 4/3;
+            background: var(--gray-100);
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .project-card:nth-child(1) {
+            grid-column: span 2;
+            aspect-ratio: 16/9;
+        }
+
+        .project-visual {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            color: var(--gray-300);
+            transition: transform 0.8s var(--ease-out-expo);
+            background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 50%, var(--gray-100) 100%);
+        }
+
+        .project-card:hover .project-visual {
+            transform: scale(1.05);
+        }
+
+        .project-card:nth-child(1) .project-visual { font-size: 4rem; }
+
+        .project-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            background: linear-gradient(to top, rgba(10,10,10,0.8) 0%, transparent 100%);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.5s var(--ease-out-expo);
+        }
+
+        .project-card:hover .project-overlay {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .project-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+
+        .project-tag {
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .contact {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 3rem;
+        }
+
+        .contact-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: var(--gray-400);
+            margin-bottom: 2rem;
+        }
+
+        .contact-title {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(1.8rem, 5vw, 3.5rem);
+            font-weight: 300;
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+            margin-bottom: 3rem;
+            word-break: break-all;
+        }
+
+        .contact-title a {
+            color: var(--white);
+            text-decoration: none;
+            position: relative;
+            display: inline-block;
+            transition: color 0.4s var(--ease-out-expo);
+        }
+
+        .contact-title a::after {
+            content: '';
+            position: absolute;
+            bottom: 0.05em;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.6s var(--ease-out-expo);
+        }
+
+        .contact-title a:hover {
+            color: var(--accent);
+        }
+
+        .contact-title a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .contact-link {
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            color: var(--gray-500);
+            text-decoration: none;
+            position: relative;
+            transition: color 0.4s var(--ease-out-expo);
+        }
+
+        .contact-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--white);
+            transition: width 0.5s var(--ease-out-expo);
+        }
+
+        .contact-link:hover {
+            color: var(--white);
+        }
+
+        .contact-link:hover::after {
+            width: 100%;
+        }
+
+        footer {
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--gray-200);
+            font-size: 0.8rem;
+            color: var(--gray-400);
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
+        @media (max-width: 1024px) {
+            .about {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            .about-image {
+                max-width: 320px;
+            }
+            .skills-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1.5rem 1.5rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            .hero {
+                padding: 6rem 1.5rem 3rem;
+            }
+            section {
+                padding: 5rem 1.5rem;
+            }
+            .experience-item {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            .experience-arrow {
+                display: none;
+            }
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            .project-card:nth-child(1) {
+                grid-column: span 1;
+                aspect-ratio: 4/3;
+            }
+            .contact-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            footer {
+                padding: 2rem 1.5rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+        }
+
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 1px solid var(--white);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: width 0.3s var(--ease-out-expo), 
+                        height 0.3s var(--ease-out-expo),
+                        background 0.3s var(--ease-out-expo),
+                        opacity 0.3s var(--ease-out-expo);
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
+
+        .cursor.hover {
+            width: 50px;
+            height: 50px;
+            background: var(--white);
+            border-color: var(--white);
+        }
+
+        @media (max-width: 768px) {
+            .cursor {
+                display: none;
+            }
+        }
+
+        /* InfiniteMenu */
+        #infinite-menu {
+            position: relative;
+            grid-column: span 2;
+            width: 100%;
+            height: 60vh;
+            min-height: 480px;
+            background: var(--black);
+            overflow: hidden;
+        }
+
+        #infinite-grid-menu-canvas {
+            cursor: grab;
+            width: 100%;
+            height: 100%;
+            display: block;
+            outline: none;
+        }
+
+        #infinite-grid-menu-canvas:active {
+            cursor: grabbing;
+        }
+
+        .face-title {
+            user-select: none;
+            position: absolute;
+            top: 50%;
+            left: 1.6em;
+            transform: translate(20%, -50%);
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 500;
+            font-size: 3rem;
+            color: var(--white);
+            pointer-events: none;
+            margin: 0;
+        }
+
+        .face-title.active {
+            opacity: 1;
+            transform: translate(20%, -50%);
+            pointer-events: auto;
+            transition: 0.5s ease;
+        }
+
+        .face-title.inactive {
+            pointer-events: none;
+            opacity: 0;
+            transition: 0.1s ease;
+        }
+
+        .face-description {
+            user-select: none;
+            position: absolute;
+            max-width: 14ch;
+            top: 50%;
+            right: 1%;
+            transform: translate(0, -50%);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--gray-500);
+            pointer-events: none;
+            margin: 0;
+        }
+
+        .face-description.active {
+            opacity: 1;
+            transform: translate(-90%, -50%);
+            pointer-events: auto;
+            transition: 0.5s ease;
+        }
+
+        .face-description.inactive {
+            pointer-events: none;
+            transform: translate(-60%, -50%);
+            opacity: 0;
+            transition: 0.1s ease;
+        }
+
+        .action-button {
+            position: absolute;
+            left: 50%;
+            bottom: -80px;
+            z-index: 10;
+            width: 60px;
+            height: 60px;
+            display: grid;
+            place-items: center;
+            background: var(--accent);
+            border: 3px solid var(--black);
+            border-radius: 50%;
+            cursor: pointer;
+            transform: translateX(-50%) scale(0);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.1s ease;
+        }
+
+        .action-button.active {
+            bottom: 3.8em;
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+            transition: 0.5s ease;
+        }
+
+        .action-button.inactive {
+            bottom: -80px;
+            transform: translateX(-50%) scale(0);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.1s ease;
+        }
+
+        .action-button-icon {
+            user-select: none;
+            position: relative;
+            color: var(--black);
+            top: 2px;
+            font-size: 26px;
+            margin: 0;
+        }
+
+        @media (max-width: 1500px) {
+            .face-title,
+            .face-description {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #infinite-menu {
+                grid-column: span 1;
+                height: 50vh;
+                min-height: 360px;
+            }
+        }
+
+        /* Lightbox */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s var(--ease-out-expo);
+        }
+
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lightbox-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: scale(0.95);
+            transition: transform 0.4s var(--ease-out-expo);
+        }
+
+        .lightbox.active .lightbox-content {
+            transform: scale(1);
+        }
+
+        .lightbox-image {
+            max-width: 90vw;
+            max-height: 72vh;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .lightbox-close {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s var(--ease-out-expo);
+            z-index: 10001;
+        }
+
+        .lightbox-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .lightbox-info {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--white);
+        }
+
+        .lightbox-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .lightbox-description {
+            font-size: 0.95rem;
+            color: var(--gray-500);
+        }
+
+        .lightbox-hint {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            color: var(--gray-400);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .lightbox.active .lightbox-hint {
+            opacity: 1;
+        }
+
+        /* CircularGallery */
+        .work-subtitle {
+            grid-column: span 2;
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            color: var(--white);
+            margin-top: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        #circular-gallery {
+            grid-column: span 2;
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            min-height: 500px;
+            z-index: 1;
+            overflow: hidden;
+            cursor: grab;
+            outline: none;
+        }
+
+        #circular-gallery:active {
+            cursor: grabbing;
+        }
+
+        #circular-gallery:focus-visible {
+            outline: 2px solid #fff;
+            outline-offset: 4px;
+        }
+
+        #circular-gallery canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Stack（IP形象） */
+        #ip-stack {
+            grid-column: span 2;
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            min-height: 520px;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        #ip-stack .stack-container {
+            position: relative;
+            width: min(380px, 80vw);
+            height: min(520px, 68vh);
+            perspective: 800px;
+            touch-action: none;
+        }
+
+        #ip-stack .card-rotate {
+            position: absolute;
+            inset: 0;
+            cursor: grab;
+            will-change: transform;
+            transform-style: preserve-3d;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #ip-stack .card-rotate.dragging {
+            cursor: grabbing;
+            transition: none;
+        }
+
+        #ip-stack .card-rotate.flying {
+            pointer-events: none;
+        }
+
+        #ip-stack .card {
+            border-radius: 1rem;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gray-200);
+            box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.65), 0 8px 20px -6px rgba(0, 0, 0, 0.4);
+            will-change: transform;
+            transition: transform 0.6s var(--ease-out-expo);
+        }
+
+        #ip-stack .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        #ip-stack .stack-hint {
+            font-size: 0.78rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--gray-500);
+            opacity: 0.7;
+            font-family: 'Inter', sans-serif;
+        }
+
+        @media (max-width: 768px) {
+            .work-subtitle {
+                grid-column: span 1;
+                margin-top: 2.5rem;
+            }
+            #circular-gallery {
+                grid-column: span 1;
+                height: 60vh;
+                min-height: 380px;
+            }
+            #ip-stack {
+                grid-column: span 1;
+                height: 70vh;
+                min-height: 460px;
+            }
+            #ip-stack .stack-container {
+                width: min(300px, 86vw);
+                height: min(420px, 60vh);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor" id="cursor"></div>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="#work">作品</a></li>
+            <li><a href="#contact">联系</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <div class="threads-bg" id="threads-bg"></div>
+        <div class="hero-meta">
+            <div class="hero-meta-right">
+                作品集 2026<br>开放合作机会
+            </div>
+        </div>
+        <h1 class="hero-title">
+            <span class="hero-title-line"><span>何同学的</span></span>
+            <span class="hero-title-line"><span>个人作品集</span></span>
+        </h1>
+        <div class="hero-scroll">
+            <span>向下滚动</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <section id="work">
+        <div class="section-label reveal">精选作品</div>
+        <div class="projects-grid">
+            <h3 class="work-subtitle reveal">IP海报</h3>
+            <div id="circular-gallery" class="reveal"></div>
+            <h3 class="work-subtitle reveal">LOGO设计</h3>
+            <div id="infinite-menu" class="reveal reveal-delay-1">
+                <canvas id="infinite-grid-menu-canvas"></canvas>
+                <div class="action-button inactive">
+                    <p class="action-button-icon">&#128269;</p>
+                </div>
+            </div>
+            <h3 class="work-subtitle reveal">IP形象</h3>
+            <div id="ip-stack" class="reveal reveal-delay-1">
+                <div class="stack-container"></div>
+                <div class="stack-hint">拖拽顶部卡片 · 点击查看大图</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <div class="contact-label reveal">期待合作</div>
+        <h2 class="contact-title reveal reveal-delay-1">
+            <a href="mailto:3422579983@qq.com">3422579983@qq.com</a>
+        </h2>
+    </section>
+
+    <script>
+        const cursor = document.getElementById('cursor');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.15;
+            cursorY += (mouseY - cursorY) * 0.15;
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        const hoverElements = document.querySelectorAll('a, .project-card');
+        hoverElements.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    const statNumbers = entry.target.querySelectorAll('.stat-number');
+                    statNumbers.forEach(stat => {
+                        const target = parseInt(stat.dataset.count);
+                        animateNumber(stat, target);
+                    });
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        function animateNumber(element, target) {
+            const duration = 1500;
+            const start = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 4);
+                const current = Math.floor(eased * target);
+                element.textContent = current;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = target;
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    const scrolled = window.pageYOffset;
+                    const heroTitle = document.querySelector('.hero-title');
+                    if (heroTitle && scrolled < window.innerHeight) {
+                        heroTitle.style.transform = `translateY(${scrolled * 0.3}px)`;
+                        heroTitle.style.opacity = 1 - (scrolled / window.innerHeight) * 0.5;
+                    }
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "ogl": "https://esm.sh/ogl@1.0.11",
+            "gl-matrix": "https://esm.sh/gl-matrix"
+        }
+    }
+    </script>
+
+    <script type="module">
+    import { Color, Mesh, Program, Renderer, Triangle } from 'ogl';
+
+    const threadsVertexShader = `
+    attribute vec2 position;
+    attribute vec2 uv;
+    varying vec2 vUv;
+
+    void main() {
+      vUv = uv;
+      gl_Position = vec4(position, 0.0, 1.0);
+    }
+    `;
+
+    const threadsFragmentShader = `
+    precision highp float;
+
+    uniform float iTime;
+    uniform vec3 iResolution;
+    uniform vec3 uColor;
+    uniform float uAmplitude;
+    uniform float uDistance;
+    uniform vec2 uMouse;
+
+    #define PI 3.1415926538
+
+    const int u_line_count = 40;
+    const float u_line_width = 7.0;
+    const float u_line_blur = 10.0;
+
+    float Perlin2D(vec2 P) {
+        vec2 Pi = floor(P);
+        vec4 Pf_Pfmin1 = P.xyxy - vec4(Pi, Pi + 1.0);
+        vec4 Pt = vec4(Pi.xy, Pi.xy + 1.0);
+        Pt = Pt - floor(Pt * (1.0 / 71.0)) * 71.0;
+        Pt += vec2(26.0, 161.0).xyxy;
+        Pt *= Pt;
+        Pt = Pt.xzxz * Pt.yyww;
+        vec4 hash_x = fract(Pt * (1.0 / 951.135664));
+        vec4 hash_y = fract(Pt * (1.0 / 642.949883));
+        vec4 grad_x = hash_x - 0.49999;
+        vec4 grad_y = hash_y - 0.49999;
+        vec4 grad_results = inversesqrt(grad_x * grad_x + grad_y * grad_y)
+            * (grad_x * Pf_Pfmin1.xzxz + grad_y * Pf_Pfmin1.yyww);
+        grad_results *= 1.4142135623730950;
+        vec2 blend = Pf_Pfmin1.xy * Pf_Pfmin1.xy * Pf_Pfmin1.xy
+                   * (Pf_Pfmin1.xy * (Pf_Pfmin1.xy * 6.0 - 15.0) + 10.0);
+        vec4 blend2 = vec4(blend, vec2(1.0 - blend));
+        return dot(grad_results, blend2.zxzx * blend2.wwyy);
+    }
+
+    float pixel(float count, vec2 resolution) {
+        return (1.0 / max(resolution.x, resolution.y)) * count;
+    }
+
+    float lineFn(
+        vec2 st,
+        float width,
+        float perc,
+        float offset,
+        vec2 mouse,
+        float time,
+        float amplitude,
+        float distance
+    ) {
+        float split_offset = (perc * 0.4);
+        float split_point = 0.1 + split_offset;
+
+        float amplitude_normal = smoothstep(split_point, 0.7, st.x);
+        float amplitude_strength = 0.5;
+        float finalAmplitude = amplitude_normal * amplitude_strength
+                               * amplitude * (1.0 + (mouse.y - 0.5) * 0.2);
+
+        float time_scaled = time / 10.0 + (mouse.x - 0.5) * 1.0;
+        float blur = smoothstep(split_point, split_point + 0.05, st.x) * perc;
+
+        float xnoise = mix(
+            Perlin2D(vec2(time_scaled, st.x + perc) * 2.5),
+            Perlin2D(vec2(time_scaled, st.x + time_scaled) * 3.5) / 1.5,
+            st.x * 0.3
+        );
+
+        float y = 0.5 + (perc - 0.5) * distance + xnoise / 2.0 * finalAmplitude;
+
+        float line_start = smoothstep(
+            y + (width / 2.0) + (u_line_blur * pixel(1.0, iResolution.xy) * blur),
+            y,
+            st.y
+        );
+
+        float line_end = smoothstep(
+            y,
+            y - (width / 2.0) - (u_line_blur * pixel(1.0, iResolution.xy) * blur),
+            st.y
+        );
+
+        return clamp(
+            (line_start - line_end) * (1.0 - smoothstep(0.0, 1.0, pow(perc, 0.3))),
+            0.0,
+            1.0
+        );
+    }
+
+    void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+        vec2 uv = fragCoord / iResolution.xy;
+
+        float line_strength = 1.0;
+        for (int i = 0; i < u_line_count; i++) {
+            float p = float(i) / float(u_line_count);
+            line_strength *= (1.0 - lineFn(
+                uv,
+                u_line_width * pixel(1.0, iResolution.xy) * (1.0 - p),
+                p,
+                (PI * 1.0) * p,
+                uMouse,
+                iTime,
+                uAmplitude,
+                uDistance
+            ));
+        }
+
+        float colorVal = 1.0 - line_strength;
+        fragColor = vec4(uColor * colorVal, colorVal);
+    }
+
+    void main() {
+        mainImage(gl_FragColor, gl_FragCoord.xy);
+    }
+    `;
+
+    (function initThreads() {
+      const container = document.getElementById('threads-bg');
+      if (!container) return;
+
+      const renderer = new Renderer({ alpha: true, antialias: true });
+      const gl = renderer.gl;
+
+      gl.clearColor(0, 0, 0, 0);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      container.appendChild(gl.canvas);
+
+      const geometry = new Triangle(gl);
+      const program = new Program(gl, {
+        vertex: threadsVertexShader,
+        fragment: threadsFragmentShader,
+        uniforms: {
+          iTime: { value: 0 },
+          iResolution: {
+            value: new Color(gl.canvas.width, gl.canvas.height, 1),
+          },
+          uColor: { value: new Color(0.93, 0.78, 0.55) },
+          uAmplitude: { value: 1 },
+          uDistance: { value: 0.22 },
+          uMouse: { value: new Float32Array([0.5, 0.5]) },
+        },
+      });
+
+      const mesh = new Mesh(gl, { geometry, program });
+      const MAX_RENDER_DIM = 1920;
+
+      function resize() {
+        const clientWidth = container.clientWidth;
+        const clientHeight = container.clientHeight;
+        if (!clientWidth || !clientHeight) return;
+
+        const baseDpr = Math.min(window.devicePixelRatio || 1, 2);
+        const longestSide = Math.max(clientWidth, clientHeight) * baseDpr;
+        const dpr =
+          longestSide > MAX_RENDER_DIM
+            ? (baseDpr * MAX_RENDER_DIM) / longestSide
+            : baseDpr;
+
+        renderer.dpr = dpr;
+        renderer.setSize(clientWidth, clientHeight);
+        program.uniforms.iResolution.value.r = gl.canvas.width;
+        program.uniforms.iResolution.value.g = gl.canvas.height;
+        program.uniforms.iResolution.value.b = gl.canvas.width / gl.canvas.height;
+      }
+
+      const resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(container);
+      window.addEventListener('resize', resize);
+      resize();
+
+      const currentMouse = [0.5, 0.5];
+      let targetMouse = [0.5, 0.5];
+
+      function handleMouseMove(event) {
+        const rect = container.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = 1 - (event.clientY - rect.top) / rect.height;
+        targetMouse = [x, y];
+      }
+
+      function handleMouseLeave() {
+        targetMouse = [0.5, 0.5];
+      }
+
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseleave', handleMouseLeave);
+
+      let isVisible = true;
+      const intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          isVisible = entries[0] ? entries[0].isIntersecting : true;
+        },
+        { threshold: 0 }
+      );
+      intersectionObserver.observe(container);
+
+      let animationFrameId;
+      function update(time) {
+        animationFrameId = requestAnimationFrame(update);
+        if (!isVisible || document.hidden) return;
+
+        const smoothing = 0.05;
+        currentMouse[0] += smoothing * (targetMouse[0] - currentMouse[0]);
+        currentMouse[1] += smoothing * (targetMouse[1] - currentMouse[1]);
+        program.uniforms.uMouse.value[0] = currentMouse[0];
+        program.uniforms.uMouse.value[1] = currentMouse[1];
+
+        program.uniforms.iTime.value = time * 0.001;
+        renderer.render({ scene: mesh });
+      }
+
+      animationFrameId = requestAnimationFrame(update);
+    })();
+    </script>
+
+    <script type="module">
+    import { mat4, quat, vec2, vec3 } from 'gl-matrix';
+
+    const discVertShaderSource = `#version 300 es
+
+uniform mat4 uWorldMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform vec3 uCameraPosition;
+uniform vec4 uRotationAxisVelocity;
+
+in vec3 aModelPosition;
+in vec3 aModelNormal;
+in vec2 aModelUvs;
+in mat4 aInstanceMatrix;
+
+out vec2 vUvs;
+out float vAlpha;
+flat out int vInstanceId;
+
+#define PI 3.141593
+
+void main() {
+    vec4 worldPosition = uWorldMatrix * aInstanceMatrix * vec4(aModelPosition, 1.);
+
+    vec3 centerPos = (uWorldMatrix * aInstanceMatrix * vec4(0., 0., 0., 1.)).xyz;
+    float radius = length(centerPos.xyz);
+
+    if (gl_VertexID > 0) {
+        vec3 rotationAxis = uRotationAxisVelocity.xyz;
+        float rotationVelocity = min(.15, uRotationAxisVelocity.w * 15.);
+        vec3 stretchDir = normalize(cross(centerPos, rotationAxis));
+        vec3 relativeVertexPos = normalize(worldPosition.xyz - centerPos);
+        float strength = dot(stretchDir, relativeVertexPos);
+        float invAbsStrength = min(0., abs(strength) - 1.);
+        strength = rotationVelocity * sign(strength) * abs(invAbsStrength * invAbsStrength * invAbsStrength + 1.);
+        worldPosition.xyz += stretchDir * strength;
+    }
+
+    worldPosition.xyz = radius * normalize(worldPosition.xyz);
+
+    gl_Position = uProjectionMatrix * uViewMatrix * worldPosition;
+
+    vAlpha = smoothstep(0.5, 1., normalize(worldPosition.xyz).z) * .9 + .1;
+    vUvs = aModelUvs;
+    vInstanceId = gl_InstanceID;
+}
+`;
+
+    const discFragShaderSource = `#version 300 es
+precision highp float;
+
+uniform sampler2D uTex;
+uniform int uItemCount;
+uniform int uAtlasSize;
+
+out vec4 outColor;
+
+in vec2 vUvs;
+in float vAlpha;
+flat in int vInstanceId;
+
+void main() {
+    int itemIndex = vInstanceId % uItemCount;
+    int cellsPerRow = uAtlasSize;
+    int cellX = itemIndex % cellsPerRow;
+    int cellY = itemIndex / cellsPerRow;
+    vec2 cellSize = vec2(1.0) / vec2(float(cellsPerRow));
+    vec2 cellOffset = vec2(float(cellX), float(cellY)) * cellSize;
+
+    ivec2 texSize = textureSize(uTex, 0);
+    float imageAspect = float(texSize.x) / float(texSize.y);
+    float containerAspect = 1.0;
+
+    float scale = max(imageAspect / containerAspect,
+                     containerAspect / imageAspect);
+
+    vec2 st = vec2(vUvs.x, 1.0 - vUvs.y);
+    st = (st - 0.5) * scale + 0.5;
+
+    st = clamp(st, 0.0, 1.0);
+
+    st = st * cellSize + cellOffset;
+
+    outColor = texture(uTex, st);
+    outColor.a *= vAlpha;
+}
+`;
+
+    class Face {
+      constructor(a, b, c) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+      }
+    }
+
+    class Vertex {
+      constructor(x, y, z) {
+        this.position = vec3.fromValues(x, y, z);
+        this.normal = vec3.create();
+        this.uv = vec2.create();
+      }
+    }
+
+    class Geometry {
+      constructor() {
+        this.vertices = [];
+        this.faces = [];
+      }
+
+      addVertex(...args) {
+        for (let i = 0; i < args.length; i += 3) {
+          this.vertices.push(new Vertex(args[i], args[i + 1], args[i + 2]));
+        }
+        return this;
+      }
+
+      addFace(...args) {
+        for (let i = 0; i < args.length; i += 3) {
+          this.faces.push(new Face(args[i], args[i + 1], args[i + 2]));
+        }
+        return this;
+      }
+
+      get lastVertex() {
+        return this.vertices[this.vertices.length - 1];
+      }
+
+      subdivide(divisions = 1) {
+        const midPointCache = {};
+        let f = this.faces;
+
+        for (let div = 0; div < divisions; ++div) {
+          const newFaces = new Array(f.length * 4);
+
+          f.forEach((face, ndx) => {
+            const mAB = this.getMidPoint(face.a, face.b, midPointCache);
+            const mBC = this.getMidPoint(face.b, face.c, midPointCache);
+            const mCA = this.getMidPoint(face.c, face.a, midPointCache);
+
+            const i = ndx * 4;
+            newFaces[i + 0] = new Face(face.a, mAB, mCA);
+            newFaces[i + 1] = new Face(face.b, mBC, mAB);
+            newFaces[i + 2] = new Face(face.c, mCA, mBC);
+            newFaces[i + 3] = new Face(mAB, mBC, mCA);
+          });
+
+          f = newFaces;
+        }
+
+        this.faces = f;
+        return this;
+      }
+
+      spherize(radius = 1) {
+        this.vertices.forEach(vertex => {
+          vec3.normalize(vertex.normal, vertex.position);
+          vec3.scale(vertex.position, vertex.normal, radius);
+        });
+        return this;
+      }
+
+      get data() {
+        return {
+          vertices: this.vertexData,
+          indices: this.indexData,
+          normals: this.normalData,
+          uvs: this.uvData
+        };
+      }
+
+      get vertexData() {
+        return new Float32Array(this.vertices.flatMap(v => Array.from(v.position)));
+      }
+
+      get normalData() {
+        return new Float32Array(this.vertices.flatMap(v => Array.from(v.normal)));
+      }
+
+      get uvData() {
+        return new Float32Array(this.vertices.flatMap(v => Array.from(v.uv)));
+      }
+
+      get indexData() {
+        return new Uint16Array(this.faces.flatMap(f => [f.a, f.b, f.c]));
+      }
+
+      getMidPoint(ndxA, ndxB, cache) {
+        const cacheKey = ndxA < ndxB ? `k_${ndxB}_${ndxA}` : `k_${ndxA}_${ndxB}`;
+        if (Object.prototype.hasOwnProperty.call(cache, cacheKey)) {
+          return cache[cacheKey];
+        }
+        const a = this.vertices[ndxA].position;
+        const b = this.vertices[ndxB].position;
+        const ndx = this.vertices.length;
+        cache[cacheKey] = ndx;
+        this.addVertex((a[0] + b[0]) * 0.5, (a[1] + b[1]) * 0.5, (a[2] + b[2]) * 0.5);
+        return ndx;
+      }
+    }
+
+    class IcosahedronGeometry extends Geometry {
+      constructor() {
+        super();
+        const t = Math.sqrt(5) * 0.5 + 0.5;
+        this.addVertex(
+          -1, t, 0,  1, t, 0,  -1, -t, 0,  1, -t, 0,
+          0, -1, t,  0, 1, t,   0, -1, -t, 0, 1, -t,
+          t, 0, -1,  t, 0, 1,   -t, 0, -1, -t, 0, 1
+        ).addFace(
+          0, 11, 5,  0, 5, 1,   0, 1, 7,    0, 7, 10,  0, 10, 11,
+          1, 5, 9,   5, 11, 4,  11, 10, 2,  10, 7, 6,  7, 1, 8,
+          3, 9, 4,   3, 4, 2,   3, 2, 6,    3, 6, 8,   3, 8, 9,
+          4, 9, 5,   2, 4, 11,  6, 2, 10,   8, 6, 7,   9, 8, 1
+        );
+      }
+    }
+
+    class DiscGeometry extends Geometry {
+      constructor(steps = 4, radius = 1) {
+        super();
+        steps = Math.max(4, steps);
+
+        const alpha = (2 * Math.PI) / steps;
+
+        this.addVertex(0, 0, 0);
+        this.lastVertex.uv[0] = 0.5;
+        this.lastVertex.uv[1] = 0.5;
+
+        for (let i = 0; i < steps; ++i) {
+          const x = Math.cos(alpha * i);
+          const y = Math.sin(alpha * i);
+          this.addVertex(radius * x, radius * y, 0);
+          this.lastVertex.uv[0] = x * 0.5 + 0.5;
+          this.lastVertex.uv[1] = y * 0.5 + 0.5;
+
+          if (i > 0) {
+            this.addFace(0, i, i + 1);
+          }
+        }
+        this.addFace(0, steps, 1);
+      }
+    }
+
+    function createShader(gl, type, source) {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+
+      if (success) {
+        return shader;
+      }
+
+      console.error(gl.getShaderInfoLog(shader));
+      gl.deleteShader(shader);
+      return null;
+    }
+
+    function createProgram(gl, shaderSources, transformFeedbackVaryings, attribLocations) {
+      const program = gl.createProgram();
+
+      [gl.VERTEX_SHADER, gl.FRAGMENT_SHADER].forEach((type, ndx) => {
+        const shader = createShader(gl, type, shaderSources[ndx]);
+        if (shader) gl.attachShader(program, shader);
+      });
+
+      if (transformFeedbackVaryings) {
+        gl.transformFeedbackVaryings(program, transformFeedbackVaryings, gl.SEPARATE_ATTRIBS);
+      }
+
+      if (attribLocations) {
+        for (const attrib in attribLocations) {
+          gl.bindAttribLocation(program, attribLocations[attrib], attrib);
+        }
+      }
+
+      gl.linkProgram(program);
+      const success = gl.getProgramParameter(program, gl.LINK_STATUS);
+
+      if (success) {
+        return program;
+      }
+
+      console.error(gl.getProgramInfoLog(program));
+      gl.deleteProgram(program);
+      return null;
+    }
+
+    function makeVertexArray(gl, bufLocNumElmPairs, indices) {
+      const va = gl.createVertexArray();
+      gl.bindVertexArray(va);
+
+      for (const [buffer, loc, numElem] of bufLocNumElmPairs) {
+        if (loc === -1) continue;
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, numElem, gl.FLOAT, false, 0, 0);
+      }
+
+      if (indices) {
+        const indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+      }
+
+      gl.bindVertexArray(null);
+      return va;
+    }
+
+    function resizeCanvasToDisplaySize(canvas) {
+      const dpr = Math.min(2, window.devicePixelRatio);
+      const displayWidth = Math.round(canvas.clientWidth * dpr);
+      const displayHeight = Math.round(canvas.clientHeight * dpr);
+      const needResize = canvas.width !== displayWidth || canvas.height !== displayHeight;
+      if (needResize) {
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
+      }
+      return needResize;
+    }
+
+    function makeBuffer(gl, sizeOrData, usage) {
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, sizeOrData, usage);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+      return buf;
+    }
+
+    function createAndSetupTexture(gl, minFilter, magFilter, wrapS, wrapT) {
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
+      return texture;
+    }
+
+    class ArcballControl {
+      isPointerDown = false;
+      orientation = quat.create();
+      pointerRotation = quat.create();
+      rotationVelocity = 0;
+      rotationAxis = vec3.fromValues(1, 0, 0);
+      snapDirection = vec3.fromValues(0, 0, -1);
+      snapTargetDirection;
+      EPSILON = 0.1;
+      IDENTITY_QUAT = quat.create();
+
+      constructor(canvas, updateCallback) {
+        this.canvas = canvas;
+        this.updateCallback = updateCallback || (() => null);
+
+        this.pointerPos = vec2.create();
+        this.previousPointerPos = vec2.create();
+        this._rotationVelocity = 0;
+        this._combinedQuat = quat.create();
+
+        canvas.addEventListener('pointerdown', e => {
+          vec2.set(this.pointerPos, e.clientX, e.clientY);
+          vec2.copy(this.previousPointerPos, this.pointerPos);
+          this.isPointerDown = true;
+        });
+        canvas.addEventListener('pointerup', () => {
+          this.isPointerDown = false;
+        });
+        canvas.addEventListener('pointerleave', () => {
+          this.isPointerDown = false;
+        });
+        canvas.addEventListener('pointermove', e => {
+          if (this.isPointerDown) {
+            vec2.set(this.pointerPos, e.clientX, e.clientY);
+          }
+        });
+
+        canvas.style.touchAction = 'none';
+      }
+
+      update(deltaTime, targetFrameDuration = 16) {
+        const timeScale = deltaTime / targetFrameDuration + 0.00001;
+        let angleFactor = timeScale;
+        let snapRotation = quat.create();
+
+        if (this.isPointerDown) {
+          const INTENSITY = 0.3 * timeScale;
+          const ANGLE_AMPLIFICATION = 5 / timeScale;
+
+          const midPointerPos = vec2.sub(vec2.create(), this.pointerPos, this.previousPointerPos);
+          vec2.scale(midPointerPos, midPointerPos, INTENSITY);
+
+          if (vec2.sqrLen(midPointerPos) > this.EPSILON) {
+            vec2.add(midPointerPos, this.previousPointerPos, midPointerPos);
+
+            const p = this.#project(midPointerPos);
+            const q = this.#project(this.previousPointerPos);
+            const a = vec3.normalize(vec3.create(), p);
+            const b = vec3.normalize(vec3.create(), q);
+
+            vec2.copy(this.previousPointerPos, midPointerPos);
+
+            angleFactor *= ANGLE_AMPLIFICATION;
+
+            this.quatFromVectors(a, b, this.pointerRotation, angleFactor);
+          } else {
+            quat.slerp(this.pointerRotation, this.pointerRotation, this.IDENTITY_QUAT, INTENSITY);
+          }
+        } else {
+          const INTENSITY = 0.1 * timeScale;
+          quat.slerp(this.pointerRotation, this.pointerRotation, this.IDENTITY_QUAT, INTENSITY);
+
+          if (this.snapTargetDirection) {
+            const SNAPPING_INTENSITY = 0.2;
+            const a = this.snapTargetDirection;
+            const b = this.snapDirection;
+            const sqrDist = vec3.squaredDistance(a, b);
+            const distanceFactor = Math.max(0.1, 1 - sqrDist * 10);
+            angleFactor *= SNAPPING_INTENSITY * distanceFactor;
+            this.quatFromVectors(a, b, snapRotation, angleFactor);
+          }
+        }
+
+        const combinedQuat = quat.multiply(quat.create(), snapRotation, this.pointerRotation);
+        this.orientation = quat.multiply(quat.create(), combinedQuat, this.orientation);
+        quat.normalize(this.orientation, this.orientation);
+
+        const RA_INTENSITY = 0.8 * timeScale;
+        quat.slerp(this._combinedQuat, this._combinedQuat, combinedQuat, RA_INTENSITY);
+        quat.normalize(this._combinedQuat, this._combinedQuat);
+
+        const rad = Math.acos(this._combinedQuat[3]) * 2.0;
+        const s = Math.sin(rad / 2.0);
+        let rv = 0;
+        if (s > 0.000001) {
+          rv = rad / (2 * Math.PI);
+          this.rotationAxis[0] = this._combinedQuat[0] / s;
+          this.rotationAxis[1] = this._combinedQuat[1] / s;
+          this.rotationAxis[2] = this._combinedQuat[2] / s;
+        }
+
+        const RV_INTENSITY = 0.5 * timeScale;
+        this._rotationVelocity += (rv - this._rotationVelocity) * RV_INTENSITY;
+        this.rotationVelocity = this._rotationVelocity / timeScale;
+
+        this.updateCallback(deltaTime);
+      }
+
+      quatFromVectors(a, b, out, angleFactor = 1) {
+        const axis = vec3.cross(vec3.create(), a, b);
+        vec3.normalize(axis, axis);
+        const d = Math.max(-1, Math.min(1, vec3.dot(a, b)));
+        const angle = Math.acos(d) * angleFactor;
+        quat.setAxisAngle(out, axis, angle);
+        return { q: out, axis, angle };
+      }
+
+      #project(pos) {
+        const r = 2;
+        const w = this.canvas.clientWidth;
+        const h = this.canvas.clientHeight;
+        const s = Math.max(w, h) - 1;
+
+        const x = (2 * pos[0] - w - 1) / s;
+        const y = (2 * pos[1] - h - 1) / s;
+        let z = 0;
+        const xySq = x * x + y * y;
+        const rSq = r * r;
+
+        if (xySq <= rSq / 2.0) {
+          z = Math.sqrt(rSq - xySq);
+        } else {
+          z = rSq / Math.sqrt(xySq);
+        }
+        return vec3.fromValues(-x, y, z);
+      }
+    }
+
+    class InfiniteGridMenu {
+      TARGET_FRAME_DURATION = 1000 / 60;
+      SPHERE_RADIUS = 2;
+
+      #time = 0;
+      #deltaTime = 0;
+      #deltaFrames = 0;
+      #frames = 0;
+
+      camera = {
+        matrix: mat4.create(),
+        near: 0.1,
+        far: 40,
+        fov: Math.PI / 4,
+        aspect: 1,
+        position: vec3.fromValues(0, 0, 3),
+        up: vec3.fromValues(0, 1, 0),
+        matrices: {
+          view: mat4.create(),
+          projection: mat4.create(),
+          inversProjection: mat4.create()
+        }
+      };
+
+      nearestVertexIndex = null;
+      smoothRotationVelocity = 0;
+      scaleFactor = 1.0;
+      movementActive = false;
+
+      constructor(canvas, items, onActiveItemChange, onMovementChange, onInit = null, scale = 1.0) {
+        this.canvas = canvas;
+        this.items = items || [];
+        this.onActiveItemChange = onActiveItemChange || (() => {});
+        this.onMovementChange = onMovementChange || (() => {});
+        this.scaleFactor = scale;
+        this.camera.position[2] = 3 * scale;
+        this.#init(onInit);
+      }
+
+      resize() {
+        this.viewportSize = vec2.set(this.viewportSize || vec2.create(), this.canvas.clientWidth, this.canvas.clientHeight);
+
+        const gl = this.gl;
+        const needsResize = resizeCanvasToDisplaySize(gl.canvas);
+        if (needsResize) {
+          gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        }
+
+        this.#updateProjectionMatrix(gl);
+      }
+
+      run(time = 0) {
+        this.#deltaTime = Math.min(32, time - this.#time);
+        this.#time = time;
+        this.#deltaFrames = this.#deltaTime / this.TARGET_FRAME_DURATION;
+        this.#frames += this.#deltaFrames;
+
+        this.#animate(this.#deltaTime);
+        this.#render();
+
+        requestAnimationFrame(t => this.run(t));
+      }
+
+      #init(onInit) {
+        this.gl = this.canvas.getContext('webgl2', { antialias: true, alpha: true });
+        const gl = this.gl;
+        if (!gl) {
+          throw new Error('No WebGL 2 context!');
+        }
+
+        this.viewportSize = vec2.fromValues(this.canvas.clientWidth, this.canvas.clientHeight);
+        this.drawBufferSize = vec2.clone(this.viewportSize);
+
+        this.discProgram = createProgram(gl, [discVertShaderSource, discFragShaderSource], null, {
+          aModelPosition: 0,
+          aModelNormal: 1,
+          aModelUvs: 2,
+          aInstanceMatrix: 3
+        });
+
+        this.discLocations = {
+          aModelPosition: gl.getAttribLocation(this.discProgram, 'aModelPosition'),
+          aModelUvs: gl.getAttribLocation(this.discProgram, 'aModelUvs'),
+          aInstanceMatrix: gl.getAttribLocation(this.discProgram, 'aInstanceMatrix'),
+          uWorldMatrix: gl.getUniformLocation(this.discProgram, 'uWorldMatrix'),
+          uViewMatrix: gl.getUniformLocation(this.discProgram, 'uViewMatrix'),
+          uProjectionMatrix: gl.getUniformLocation(this.discProgram, 'uProjectionMatrix'),
+          uCameraPosition: gl.getUniformLocation(this.discProgram, 'uCameraPosition'),
+          uScaleFactor: gl.getUniformLocation(this.discProgram, 'uScaleFactor'),
+          uRotationAxisVelocity: gl.getUniformLocation(this.discProgram, 'uRotationAxisVelocity'),
+          uTex: gl.getUniformLocation(this.discProgram, 'uTex'),
+          uFrames: gl.getUniformLocation(this.discProgram, 'uFrames'),
+          uItemCount: gl.getUniformLocation(this.discProgram, 'uItemCount'),
+          uAtlasSize: gl.getUniformLocation(this.discProgram, 'uAtlasSize')
+        };
+
+        this.discGeo = new DiscGeometry(56, 1);
+        this.discBuffers = this.discGeo.data;
+        this.discVAO = makeVertexArray(
+          gl,
+          [
+            [makeBuffer(gl, this.discBuffers.vertices, gl.STATIC_DRAW), this.discLocations.aModelPosition, 3],
+            [makeBuffer(gl, this.discBuffers.uvs, gl.STATIC_DRAW), this.discLocations.aModelUvs, 2]
+          ],
+          this.discBuffers.indices
+        );
+
+        this.icoGeo = new IcosahedronGeometry();
+        this.icoGeo.subdivide(1).spherize(this.SPHERE_RADIUS);
+        this.instancePositions = this.icoGeo.vertices.map(v => v.position);
+        this.DISC_INSTANCE_COUNT = this.icoGeo.vertices.length;
+        this.#initDiscInstances(this.DISC_INSTANCE_COUNT);
+
+        this.worldMatrix = mat4.create();
+        this.#initTexture();
+
+        this.control = new ArcballControl(this.canvas, deltaTime => this.#onControlUpdate(deltaTime));
+
+        this.#updateCameraMatrix();
+        this.#updateProjectionMatrix(gl);
+        this.resize();
+
+        if (onInit) onInit(this);
+      }
+
+      #initTexture() {
+        const gl = this.gl;
+        this.tex = createAndSetupTexture(gl, gl.LINEAR, gl.LINEAR, gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE);
+
+        const itemCount = Math.max(1, this.items.length);
+        this.atlasSize = Math.ceil(Math.sqrt(itemCount));
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const cellSize = 512;
+
+        canvas.width = this.atlasSize * cellSize;
+        canvas.height = this.atlasSize * cellSize;
+
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        Promise.all(
+          this.items.map(
+            item =>
+              new Promise(resolve => {
+                const img = new Image();
+                if (/^https?:\/\//.test(item.image)) {
+                  img.crossOrigin = 'anonymous';
+                }
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = item.image;
+              })
+          )
+        ).then(images => {
+          images.forEach((img, i) => {
+            const x = (i % this.atlasSize) * cellSize;
+            const y = Math.floor(i / this.atlasSize) * cellSize;
+            if (img) {
+              ctx.drawImage(img, x, y, cellSize, cellSize);
+            }
+          });
+
+          gl.bindTexture(gl.TEXTURE_2D, this.tex);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+          gl.generateMipmap(gl.TEXTURE_2D);
+        });
+      }
+
+      #initDiscInstances(count) {
+        const gl = this.gl;
+        this.discInstances = {
+          matricesArray: new Float32Array(count * 16),
+          matrices: [],
+          buffer: gl.createBuffer()
+        };
+        for (let i = 0; i < count; ++i) {
+          const instanceMatrixArray = new Float32Array(this.discInstances.matricesArray.buffer, i * 16 * 4, 16);
+          instanceMatrixArray.set(mat4.create());
+          this.discInstances.matrices.push(instanceMatrixArray);
+        }
+        gl.bindVertexArray(this.discVAO);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.discInstances.buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.discInstances.matricesArray.byteLength, gl.DYNAMIC_DRAW);
+        const mat4AttribSlotCount = 4;
+        const bytesPerMatrix = 16 * 4;
+        for (let j = 0; j < mat4AttribSlotCount; ++j) {
+          const loc = this.discLocations.aInstanceMatrix + j;
+          gl.enableVertexAttribArray(loc);
+          gl.vertexAttribPointer(loc, 4, gl.FLOAT, false, bytesPerMatrix, j * 4 * 4);
+          gl.vertexAttribDivisor(loc, 1);
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindVertexArray(null);
+      }
+
+      #animate(deltaTime) {
+        const gl = this.gl;
+        this.control.update(deltaTime, this.TARGET_FRAME_DURATION);
+
+        let positions = this.instancePositions.map(p => vec3.transformQuat(vec3.create(), p, this.control.orientation));
+        const scale = 0.25;
+        const SCALE_INTENSITY = 0.6;
+        positions.forEach((p, ndx) => {
+          const s = (Math.abs(p[2]) / this.SPHERE_RADIUS) * SCALE_INTENSITY + (1 - SCALE_INTENSITY);
+          const finalScale = s * scale;
+          const matrix = mat4.create();
+          mat4.multiply(matrix, matrix, mat4.fromTranslation(mat4.create(), vec3.negate(vec3.create(), p)));
+          mat4.multiply(matrix, matrix, mat4.targetTo(mat4.create(), [0, 0, 0], p, [0, 1, 0]));
+          mat4.multiply(matrix, matrix, mat4.fromScaling(mat4.create(), [finalScale, finalScale, finalScale]));
+          mat4.multiply(matrix, matrix, mat4.fromTranslation(mat4.create(), [0, 0, -this.SPHERE_RADIUS]));
+
+          mat4.copy(this.discInstances.matrices[ndx], matrix);
+        });
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.discInstances.buffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.discInstances.matricesArray);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+        this.smoothRotationVelocity = this.control.rotationVelocity;
+      }
+
+      #render() {
+        const gl = this.gl;
+        gl.useProgram(this.discProgram);
+
+        gl.enable(gl.CULL_FACE);
+        gl.enable(gl.DEPTH_TEST);
+
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.uniformMatrix4fv(this.discLocations.uWorldMatrix, false, this.worldMatrix);
+        gl.uniformMatrix4fv(this.discLocations.uViewMatrix, false, this.camera.matrices.view);
+        gl.uniformMatrix4fv(this.discLocations.uProjectionMatrix, false, this.camera.matrices.projection);
+        gl.uniform3f(
+          this.discLocations.uCameraPosition,
+          this.camera.position[0],
+          this.camera.position[1],
+          this.camera.position[2]
+        );
+        gl.uniform4f(
+          this.discLocations.uRotationAxisVelocity,
+          this.control.rotationAxis[0],
+          this.control.rotationAxis[1],
+          this.control.rotationAxis[2],
+          this.smoothRotationVelocity * 1.1
+        );
+
+        gl.uniform1i(this.discLocations.uItemCount, this.items.length);
+        gl.uniform1i(this.discLocations.uAtlasSize, this.atlasSize);
+
+        gl.uniform1f(this.discLocations.uFrames, this.#frames);
+        gl.uniform1f(this.discLocations.uScaleFactor, this.scaleFactor);
+        gl.uniform1i(this.discLocations.uTex, 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.tex);
+
+        gl.bindVertexArray(this.discVAO);
+        gl.drawElementsInstanced(
+          gl.TRIANGLES,
+          this.discBuffers.indices.length,
+          gl.UNSIGNED_SHORT,
+          0,
+          this.DISC_INSTANCE_COUNT
+        );
+      }
+
+      #updateCameraMatrix() {
+        mat4.targetTo(this.camera.matrix, this.camera.position, [0, 0, 0], this.camera.up);
+        mat4.invert(this.camera.matrices.view, this.camera.matrix);
+      }
+
+      #updateProjectionMatrix(gl) {
+        this.camera.aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        const height = this.SPHERE_RADIUS * 0.35;
+        const distance = this.camera.position[2];
+        if (this.camera.aspect > 1) {
+          this.camera.fov = 2 * Math.atan(height / distance);
+        } else {
+          this.camera.fov = 2 * Math.atan(height / this.camera.aspect / distance);
+        }
+        mat4.perspective(
+          this.camera.matrices.projection,
+          this.camera.fov,
+          this.camera.aspect,
+          this.camera.near,
+          this.camera.far
+        );
+        mat4.invert(this.camera.matrices.inversProjection, this.camera.matrices.projection);
+      }
+
+      #onControlUpdate(deltaTime) {
+        const timeScale = deltaTime / this.TARGET_FRAME_DURATION + 0.0001;
+        let damping = 5 / timeScale;
+        let cameraTargetZ = 3 * this.scaleFactor;
+
+        const isMoving = this.control.isPointerDown || Math.abs(this.smoothRotationVelocity) > 0.01;
+
+        if (isMoving !== this.movementActive) {
+          this.movementActive = isMoving;
+          this.onMovementChange(isMoving);
+        }
+
+        if (!this.control.isPointerDown) {
+          const nearestVertexIndex = this.#findNearestVertexIndex();
+          const itemIndex = nearestVertexIndex % Math.max(1, this.items.length);
+          this.onActiveItemChange(itemIndex);
+          const snapDirection = vec3.normalize(vec3.create(), this.#getVertexWorldPosition(nearestVertexIndex));
+          this.control.snapTargetDirection = snapDirection;
+        } else {
+          cameraTargetZ += this.control.rotationVelocity * 80 + 2.5;
+          damping = 7 / timeScale;
+        }
+
+        this.camera.position[2] += (cameraTargetZ - this.camera.position[2]) / damping;
+        this.#updateCameraMatrix();
+      }
+
+      #findNearestVertexIndex() {
+        const n = this.control.snapDirection;
+        const inversOrientation = quat.conjugate(quat.create(), this.control.orientation);
+        const nt = vec3.transformQuat(vec3.create(), n, inversOrientation);
+
+        let maxD = -1;
+        let nearestVertexIndex;
+        for (let i = 0; i < this.instancePositions.length; ++i) {
+          const d = vec3.dot(nt, this.instancePositions[i]);
+          if (d > maxD) {
+            maxD = d;
+            nearestVertexIndex = i;
+          }
+        }
+        return nearestVertexIndex;
+      }
+
+      #getVertexWorldPosition(index) {
+        const nearestVertexPos = this.instancePositions[index];
+        return vec3.transformQuat(vec3.create(), nearestVertexPos, this.control.orientation);
+      }
+
+      getActiveDiscScreenPosition() {
+        const nearestVertexIndex = this.#findNearestVertexIndex();
+        if (nearestVertexIndex === undefined) return null;
+        const worldPos = this.#getVertexWorldPosition(nearestVertexIndex);
+        const viewPos = vec3.transformMat4(vec3.create(), worldPos, this.camera.matrices.view);
+        const clipPos = vec3.transformMat4(vec3.create(), viewPos, this.camera.matrices.projection);
+        const canvas = this.canvas;
+        const x = (clipPos[0] + 1) / 2 * canvas.clientWidth;
+        const y = (1 - clipPos[1]) / 2 * canvas.clientHeight;
+        return { x, y, visible: clipPos[2] < 1 };
+      }
+    }
+
+    const imgApiBase = 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image';
+    const items = [
+      {
+        image: 'LOGO/1d4809424ec0194b0f667f04f079da8a.jpg',
+        link: '#',
+        title: 'LOGO设计 01',
+        description: '品牌标志设计作品'
+      },
+      {
+        image: 'LOGO/7cb8e83520787c726a34a5ac7afc2751.jpg',
+        link: '#',
+        title: 'LOGO设计 02',
+        description: '品牌标志设计作品'
+      },
+      {
+        image: 'LOGO/af61876c02f319187d3b10a93abc0a58.jpg',
+        link: '#',
+        title: 'LOGO设计 03',
+        description: '品牌标志设计作品'
+      },
+      {
+        image: 'LOGO/b1dac8188bb1c9c5d83ad4b8e478e5b6.png',
+        link: '#',
+        title: 'LOGO设计 04',
+        description: '品牌标志设计作品'
+      },
+      {
+        image: 'LOGO/d152738b887ae218d8a75fd0555a2432.jpg',
+        link: '#',
+        title: 'LOGO设计 05',
+        description: '品牌标志设计作品'
+      }
+    ];
+
+    function initInfiniteMenu() {
+      const canvas = document.getElementById('infinite-grid-menu-canvas');
+      if (!canvas) return;
+
+      const buttonEl = document.querySelector('#infinite-menu .action-button');
+
+      let activeItem = null;
+
+      const handleActiveItem = (index) => {
+        const itemIndex = index % items.length;
+        activeItem = items[itemIndex];
+      };
+
+      const handleMovementChange = (moving) => {
+        const cls = moving ? 'inactive' : 'active';
+        if (buttonEl) {
+          buttonEl.classList.remove('active', 'inactive');
+          buttonEl.classList.add(cls);
+        }
+      };
+
+      // Lightbox
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightbox-image');
+      const lightboxTitle = document.getElementById('lightbox-title');
+      const lightboxDesc = document.getElementById('lightbox-description');
+      const lightboxClose = document.getElementById('lightbox-close');
+
+      const openLightbox = () => {
+        if (!activeItem) return;
+        lightboxImg.src = activeItem.image;
+        lightboxTitle.textContent = activeItem.title;
+        lightboxDesc.textContent = activeItem.description;
+        lightbox.classList.add('active');
+      };
+
+      const closeLightbox = () => {
+        lightbox.classList.remove('active');
+        setTimeout(() => { lightboxImg.src = ''; }, 400);
+      };
+
+      if (buttonEl) {
+        buttonEl.addEventListener('click', openLightbox);
+      }
+
+      // Canvas click detection (only on active disc, not drag)
+      let pointerDownPos = null;
+      let pointerDownTime = 0;
+      canvas.addEventListener('pointerdown', (e) => {
+        pointerDownPos = { x: e.clientX, y: e.clientY };
+        pointerDownTime = Date.now();
+      });
+      canvas.addEventListener('pointerup', (e) => {
+        if (!pointerDownPos) return;
+        const dx = e.clientX - pointerDownPos.x;
+        const dy = e.clientY - pointerDownPos.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const elapsed = Date.now() - pointerDownTime;
+        pointerDownPos = null;
+        if (dist < 6 && elapsed < 300) {
+          const rect = canvas.getBoundingClientRect();
+          const clickX = e.clientX - rect.left;
+          const clickY = e.clientY - rect.top;
+          const discPos = sketch && sketch.getActiveDiscScreenPosition ? sketch.getActiveDiscScreenPosition() : null;
+          if (discPos && discPos.visible) {
+            const hitRadius = Math.min(canvas.clientWidth, canvas.clientHeight) * 0.18;
+            const ddx = clickX - discPos.x;
+            const ddy = clickY - discPos.y;
+            if (Math.sqrt(ddx * ddx + ddy * ddy) <= hitRadius) {
+              openLightbox();
+            }
+          }
+        }
+      });
+
+      if (lightboxClose) {
+        lightboxClose.addEventListener('click', closeLightbox);
+      }
+      if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+          if (e.target === lightbox) closeLightbox();
+        });
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+          closeLightbox();
+        }
+      });
+
+      let sketch;
+      try {
+        sketch = new InfiniteGridMenu(
+          canvas,
+          items,
+          handleActiveItem,
+          handleMovementChange,
+          (sk) => sk.run(),
+          1.0
+        );
+      } catch (e) {
+        console.error('InfiniteMenu init error:', e);
+      }
+
+      const handleResize = () => {
+        if (sketch) sketch.resize();
+      };
+
+      window.addEventListener('resize', handleResize);
+    }
+
+    initInfiniteMenu();
+    </script>
+
+    <script type="module">
+    import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from 'ogl';
+
+    function debounce(func, wait) {
+      let timeout;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    function lerp(p1, p2, t) {
+      return p1 + (p2 - p1) * t;
+    }
+
+    function autoBind(instance) {
+      const proto = Object.getPrototypeOf(instance);
+      Object.getOwnPropertyNames(proto).forEach(key => {
+        if (key !== 'constructor' && typeof instance[key] === 'function') {
+          instance[key] = instance[key].bind(instance);
+        }
+      });
+    }
+
+    const DEFAULT_FONT = 'bold 30px Figtree';
+    const DEFAULT_FONT_URL = 'https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap';
+
+    function deriveFontFamilyFromUrl(url) {
+      const fileName = (url.split('/').pop() || 'custom-font').split('?')[0];
+      const base = fileName.replace(/\.(woff2?|ttf|otf|eot)$/i, '');
+      return base.replace(/[^a-zA-Z0-9-_ ]/g, '').trim() || 'CircularGalleryFont';
+    }
+
+    async function loadFontFromStylesheet(url) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to fetch font stylesheet (${response.status})`);
+      const cssText = await response.text();
+      const faceBlocks = cssText.match(/@font-face\s*{[^}]*}/g) || [];
+      let family = null;
+      const fontFaces = [];
+      for (const block of faceBlocks) {
+        const familyMatch = block.match(/font-family:\s*['"]?([^;'"]+)['"]?/);
+        const urlMatch = block.match(/url\(\s*['"]?([^'")]+)['"]?\s*\)/);
+        if (!familyMatch || !urlMatch) continue;
+        family = familyMatch[1].trim();
+        const descriptors = {};
+        const weightMatch = block.match(/font-weight:\s*([^;]+);/);
+        const styleMatch = block.match(/font-style:\s*([^;]+);/);
+        const rangeMatch = block.match(/unicode-range:\s*([^;]+);/);
+        if (weightMatch) descriptors.weight = weightMatch[1].trim();
+        if (styleMatch) descriptors.style = styleMatch[1].trim();
+        if (rangeMatch) descriptors.unicodeRange = rangeMatch[1].trim();
+        fontFaces.push(new FontFace(family, `url(${urlMatch[1]})`, descriptors));
+      }
+      if (!family) throw new Error('No @font-face rule found in the stylesheet');
+      await Promise.allSettled(
+        fontFaces.map(async face => {
+          await face.load();
+          document.fonts.add(face);
+        })
+      );
+      return family;
+    }
+
+    async function loadFontFromFile(url) {
+      const family = deriveFontFamilyFromUrl(url);
+      const fontFace = new FontFace(family, `url(${url})`);
+      await fontFace.load();
+      document.fonts.add(fontFace);
+      return family;
+    }
+
+    async function loadCustomFont(fontUrl) {
+      const isStylesheet = fontUrl.includes('fonts.googleapis.com') || /\.css(\?.*)?$/i.test(fontUrl);
+      return isStylesheet ? loadFontFromStylesheet(fontUrl) : loadFontFromFile(fontUrl);
+    }
+
+    async function resolveFont(font, fontUrl) {
+      const effectiveUrl = fontUrl || (font === DEFAULT_FONT ? DEFAULT_FONT_URL : null);
+      if (!effectiveUrl) {
+        if (document.fonts && document.fonts.load) {
+          try {
+            await document.fonts.load(font);
+            await document.fonts.ready;
+          } catch {
+            // fall back to whatever the browser provides
+          }
+        }
+        return font;
+      }
+      try {
+        const family = await loadCustomFont(effectiveUrl);
+        const sizeMatch = font.match(/^\s*(.*?\d+px)/);
+        const prefix = sizeMatch ? sizeMatch[1].trim() : 'bold 30px';
+        const resolved = `${prefix} "${family}"`;
+        if (document.fonts && document.fonts.load) {
+          try {
+            await document.fonts.load(resolved);
+          } catch {
+            // still attempt to render with the requested font
+          }
+        }
+        return resolved;
+      } catch (error) {
+        console.error('CircularGallery: unable to load font from', fontUrl, error);
+        return font;
+      }
+    }
+
+    function getFontSize(font) {
+      const match = font.match(/(\d+)px/);
+      return match ? parseInt(match[1], 10) : 30;
+    }
+
+    function createTextTexture(gl, text, font = 'bold 30px monospace', color = 'black') {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      context.font = font;
+      const metrics = context.measureText(text);
+      const textWidth = Math.ceil(metrics.width);
+      const textHeight = Math.ceil(getFontSize(font) * 1.2);
+      canvas.width = textWidth + 20;
+      canvas.height = textHeight + 20;
+      context.font = font;
+      context.fillStyle = color;
+      context.textBaseline = 'middle';
+      context.textAlign = 'center';
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.fillText(text, canvas.width / 2, canvas.height / 2);
+      const texture = new Texture(gl, { generateMipmaps: false });
+      texture.image = canvas;
+      return { texture, width: canvas.width, height: canvas.height };
+    }
+
+    class Title {
+      constructor({ gl, plane, renderer, text, textColor = '#545050', font = '30px sans-serif' }) {
+        autoBind(this);
+        this.gl = gl;
+        this.plane = plane;
+        this.renderer = renderer;
+        this.text = text;
+        this.textColor = textColor;
+        this.font = font;
+        this.createMesh();
+      }
+      createMesh() {
+        const { texture, width, height } = createTextTexture(this.gl, this.text, this.font, this.textColor);
+        const geometry = new Plane(this.gl);
+        const program = new Program(this.gl, {
+          vertex: `
+            attribute vec3 position;
+            attribute vec2 uv;
+            uniform mat4 modelViewMatrix;
+            uniform mat4 projectionMatrix;
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `,
+          fragment: `
+            precision highp float;
+            uniform sampler2D tMap;
+            varying vec2 vUv;
+            void main() {
+              vec4 color = texture2D(tMap, vUv);
+              if (color.a < 0.1) discard;
+              gl_FragColor = color;
+            }
+          `,
+          uniforms: { tMap: { value: texture } },
+          transparent: true
+        });
+        this.mesh = new Mesh(this.gl, { geometry, program });
+        const aspect = width / height;
+        const textHeight = this.plane.scale.y * 0.15;
+        const textWidth = textHeight * aspect;
+        this.mesh.scale.set(textWidth, textHeight, 1);
+        this.mesh.position.y = -this.plane.scale.y * 0.5 - textHeight * 0.5 - 0.05;
+        this.mesh.setParent(this.plane);
+      }
+    }
+
+    class Media {
+      constructor({
+        geometry, gl, image, index, length, renderer, scene, screen, text, viewport,
+        bend, textColor, borderRadius = 0, font
+      }) {
+        this.extra = 0;
+        this.geometry = geometry;
+        this.gl = gl;
+        this.image = image;
+        this.index = index;
+        this.length = length;
+        this.renderer = renderer;
+        this.scene = scene;
+        this.screen = screen;
+        this.text = text;
+        this.viewport = viewport;
+        this.bend = bend;
+        this.textColor = textColor;
+        this.borderRadius = borderRadius;
+        this.font = font;
+        this.createShader();
+        this.createMesh();
+        this.onResize();
+      }
+      createShader() {
+        const texture = new Texture(this.gl, { generateMipmaps: true });
+        this.program = new Program(this.gl, {
+          depthTest: false,
+          depthWrite: false,
+          vertex: `
+            precision highp float;
+            attribute vec3 position;
+            attribute vec2 uv;
+            uniform mat4 modelViewMatrix;
+            uniform mat4 projectionMatrix;
+            uniform float uTime;
+            uniform float uSpeed;
+            varying vec2 vUv;
+            void main() {
+              vUv = uv;
+              vec3 p = position;
+              p.z = (sin(p.x * 4.0 + uTime) * 1.5 + cos(p.y * 2.0 + uTime) * 1.5) * (0.1 + uSpeed * 0.5);
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+            }
+          `,
+          fragment: `
+            precision highp float;
+            uniform vec2 uImageSizes;
+            uniform vec2 uPlaneSizes;
+            uniform sampler2D tMap;
+            uniform float uBorderRadius;
+            varying vec2 vUv;
+
+            float roundedBoxSDF(vec2 p, vec2 b, float r) {
+              vec2 d = abs(p) - b;
+              return length(max(d, vec2(0.0))) + min(max(d.x, d.y), 0.0) - r;
+            }
+
+            void main() {
+              vec2 ratio = vec2(
+                min((uPlaneSizes.x / uPlaneSizes.y) / (uImageSizes.x / uImageSizes.y), 1.0),
+                min((uPlaneSizes.y / uPlaneSizes.x) / (uImageSizes.y / uImageSizes.x), 1.0)
+              );
+              vec2 uv = vec2(
+                vUv.x * ratio.x + (1.0 - ratio.x) * 0.5,
+                vUv.y * ratio.y + (1.0 - ratio.y) * 0.5
+              );
+              vec4 color = texture2D(tMap, uv);
+
+              float d = roundedBoxSDF(vUv - 0.5, vec2(0.5 - uBorderRadius), uBorderRadius);
+              float edgeSmooth = 0.002;
+              float alpha = 1.0 - smoothstep(-edgeSmooth, edgeSmooth, d);
+
+              gl_FragColor = vec4(color.rgb, alpha);
+            }
+          `,
+          uniforms: {
+            tMap: { value: texture },
+            uPlaneSizes: { value: [0, 0] },
+            uImageSizes: { value: [0, 0] },
+            uSpeed: { value: 0 },
+            uTime: { value: 100 * Math.random() },
+            uBorderRadius: { value: this.borderRadius }
+          },
+          transparent: true
+        });
+        const img = new Image();
+        if (/^https?:\/\//.test(this.image)) {
+          img.crossOrigin = 'anonymous';
+        }
+        img.src = this.image;
+        img.onload = () => {
+          texture.image = img;
+          this.program.uniforms.uImageSizes.value = [img.naturalWidth, img.naturalHeight];
+        };
+      }
+      createMesh() {
+        this.plane = new Mesh(this.gl, { geometry: this.geometry, program: this.program });
+        this.plane.setParent(this.scene);
+      }
+      createTitle() {
+        this.title = new Title({
+          gl: this.gl, plane: this.plane, renderer: this.renderer,
+          text: this.text, textColor: this.textColor, font: this.font
+        });
+      }
+      update(scroll, direction) {
+        this.plane.position.x = this.x - scroll.current - this.extra;
+
+        const x = this.plane.position.x;
+        const H = this.viewport.width / 2;
+
+        if (this.bend === 0) {
+          this.plane.position.y = 0;
+          this.plane.rotation.z = 0;
+        } else {
+          const B_abs = Math.abs(this.bend);
+          const R = (H * H + B_abs * B_abs) / (2 * B_abs);
+          const effectiveX = Math.min(Math.abs(x), H);
+          const arc = R - Math.sqrt(R * R - effectiveX * effectiveX);
+          if (this.bend > 0) {
+            this.plane.position.y = -arc;
+            this.plane.rotation.z = -Math.sign(x) * Math.asin(effectiveX / R);
+          } else {
+            this.plane.position.y = arc;
+            this.plane.rotation.z = Math.sign(x) * Math.asin(effectiveX / R);
+          }
+        }
+
+        this.speed = scroll.current - scroll.last;
+        this.program.uniforms.uTime.value += 0.04;
+        this.program.uniforms.uSpeed.value = this.speed;
+
+        const planeOffset = this.plane.scale.x / 2;
+        const viewportOffset = this.viewport.width / 2;
+        this.isBefore = this.plane.position.x + planeOffset < -viewportOffset;
+        this.isAfter = this.plane.position.x - planeOffset > viewportOffset;
+        if (direction === 'right' && this.isBefore) {
+          this.extra -= this.widthTotal;
+          this.isBefore = this.isAfter = false;
+        }
+        if (direction === 'left' && this.isAfter) {
+          this.extra += this.widthTotal;
+          this.isBefore = this.isAfter = false;
+        }
+      }
+      onResize({ screen, viewport } = {}) {
+        if (screen) this.screen = screen;
+        if (viewport) {
+          this.viewport = viewport;
+          if (this.plane.program.uniforms.uViewportSizes) {
+            this.plane.program.uniforms.uViewportSizes.value = [this.viewport.width, this.viewport.height];
+          }
+        }
+        this.scale = this.screen.height / 1500;
+        this.plane.scale.y = (this.viewport.height * (900 * this.scale)) / this.screen.height;
+        this.plane.scale.x = (this.viewport.width * (700 * this.scale)) / this.screen.width;
+        this.plane.program.uniforms.uPlaneSizes.value = [this.plane.scale.x, this.plane.scale.y];
+        this.padding = 2;
+        this.width = this.plane.scale.x + this.padding;
+        this.widthTotal = this.width * this.length;
+        this.x = this.width * this.index;
+      }
+      // 点击命中检测：传入世界坐标，判断是否落在该图片范围内
+      hitTest(worldX, worldY) {
+        const halfW = this.plane.scale.x / 2;
+        const halfH = this.plane.scale.y / 2;
+        return (
+          worldX >= this.plane.position.x - halfW &&
+          worldX <= this.plane.position.x + halfW &&
+          worldY >= this.plane.position.y - halfH &&
+          worldY <= this.plane.position.y + halfH
+        );
+      }
+    }
+
+    class App {
+      constructor(
+        container,
+        {
+          items, bend, textColor = '#ffffff', borderRadius = 0,
+          font = 'bold 30px Figtree', scrollSpeed = 2, scrollEase = 0.05,
+          onItemClick = null
+        } = {}
+      ) {
+        autoBind(this);
+        document.documentElement.classList.remove('no-js');
+        this.container = container;
+        this.scrollSpeed = scrollSpeed;
+        this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
+        this.onCheckDebounce = debounce(this.onCheck, 200);
+        this.isDestroyed = false;
+        this.isVisible = true;
+        this.onItemClick = onItemClick;
+        this.pointerDownX = 0;
+        this.pointerDownY = 0;
+        this.pointerDownTime = 0;
+        this.originalItems = items && items.length ? items : [];
+        this.createRenderer();
+        this.createCamera();
+        this.createScene();
+        this.onResize();
+        this.createGeometry();
+        this.createMedias(items, bend, textColor, borderRadius, font);
+        this.update();
+        this.addEventListeners();
+      }
+      createRenderer() {
+        this.renderer = new Renderer({
+          alpha: true, antialias: true,
+          dpr: Math.min(window.devicePixelRatio || 1, 2)
+        });
+        this.gl = this.renderer.gl;
+        this.gl.clearColor(0, 0, 0, 0);
+        this.container.appendChild(this.gl.canvas);
+      }
+      createCamera() {
+        this.camera = new Camera(this.gl);
+        this.camera.fov = 45;
+        this.camera.position.z = 20;
+      }
+      createScene() {
+        this.scene = new Transform();
+      }
+      createGeometry() {
+        this.planeGeometry = new Plane(this.gl, { heightSegments: 50, widthSegments: 100 });
+      }
+      createMedias(items, bend = 1, textColor, borderRadius, font) {
+        const defaultItems = [
+          { image: 'https://picsum.photos/seed/1/800/600?grayscale', text: 'Bridge' },
+          { image: 'https://picsum.photos/seed/2/800/600?grayscale', text: 'Desk Setup' },
+          { image: 'https://picsum.photos/seed/3/800/600?grayscale', text: 'Waterfall' },
+          { image: 'https://picsum.photos/seed/4/800/600?grayscale', text: 'Strawberries' },
+          { image: 'https://picsum.photos/seed/5/800/600?grayscale', text: 'Deep Diving' },
+          { image: 'https://picsum.photos/seed/16/800/600?grayscale', text: 'Train Track' },
+          { image: 'https://picsum.photos/seed/17/800/600?grayscale', text: 'Santorini' },
+          { image: 'https://picsum.photos/seed/8/800/600?grayscale', text: 'Blurry Lights' }
+        ];
+        const galleryItems = items && items.length ? items : defaultItems;
+        this.mediasImages = galleryItems.concat(galleryItems);
+        this.medias = this.mediasImages.map((data, index) => {
+          return new Media({
+            geometry: this.planeGeometry, gl: this.gl, image: data.image,
+            index, length: this.mediasImages.length, renderer: this.renderer,
+            scene: this.scene, screen: this.screen, text: data.text,
+            viewport: this.viewport, bend, textColor, borderRadius, font
+          });
+        });
+      }
+      onTouchDown(e) {
+        this.isDown = true;
+        this.scroll.position = this.scroll.current;
+        this.start = e.touches ? e.touches[0].clientX : e.clientX;
+        this.pointerDownX = e.touches ? e.touches[0].clientX : e.clientX;
+        this.pointerDownY = e.touches ? e.touches[0].clientY : e.clientY;
+        this.pointerDownTime = Date.now();
+      }
+      onTouchMove(e) {
+        if (!this.isDown) return;
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        const distance = (this.start - x) * (this.scrollSpeed * 0.025);
+        this.scroll.target = this.scroll.position + distance;
+      }
+      onTouchUp(e) {
+        this.isDown = false;
+        this.onCheck();
+        // 点击检测：移动距离小且时间短视为点击
+        if (this.onItemClick && e) {
+          const upX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+          const upY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+          const dx = upX - this.pointerDownX;
+          const dy = upY - this.pointerDownY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const elapsed = Date.now() - this.pointerDownTime;
+          if (dist < 6 && elapsed < 300) {
+            const item = this.getClickedItem(upX, upY);
+            if (item) this.onItemClick(item);
+          }
+        }
+      }
+      getClickedItem(clientX, clientY) {
+        if (!this.medias || !this.medias.length) return null;
+        const rect = this.container.getBoundingClientRect();
+        const localX = clientX - rect.left;
+        const localY = clientY - rect.top;
+        // 屏幕坐标转世界坐标（相机正对 z 轴，平面在 z=0）
+        const worldX = (localX / this.screen.width * 2 - 1) * (this.viewport.width / 2);
+        const worldY = (1 - localY / this.screen.height * 2) * (this.viewport.height / 2);
+        for (const media of this.medias) {
+          if (media.hitTest(worldX, worldY)) {
+            // 由于 medias 是复制过的，用 index 取原始 item
+            const realIndex = ((media.index % this.originalItems.length) + this.originalItems.length) % this.originalItems.length;
+            return this.originalItems[realIndex];
+          }
+        }
+        return null;
+      }
+      onWheel(e) {
+        const delta = e.deltaY || e.wheelDelta || e.detail;
+        this.scroll.target += (delta > 0 ? this.scrollSpeed : -this.scrollSpeed) * 0.2;
+        this.onCheckDebounce();
+      }
+      onKeyDown(e) {
+        switch (e.key) {
+          case 'ArrowRight':
+            e.preventDefault();
+            this.scroll.target += this.scrollSpeed * 5;
+            this.onCheckDebounce();
+            break;
+          case 'ArrowLeft':
+            e.preventDefault();
+            this.scroll.target -= this.scrollSpeed * 5;
+            this.onCheckDebounce();
+            break;
+          case 'Home':
+            e.preventDefault();
+            this.scroll.target = 0;
+            this.onCheckDebounce();
+            break;
+          default:
+            break;
+        }
+      }
+      onCheck() {
+        if (!this.medias || !this.medias[0]) return;
+        const width = this.medias[0].width;
+        const itemIndex = Math.round(Math.abs(this.scroll.target) / width);
+        const item = width * itemIndex;
+        this.scroll.target = this.scroll.target < 0 ? -item : item;
+      }
+      onResize() {
+        this.screen = { width: this.container.clientWidth, height: this.container.clientHeight };
+        this.renderer.setSize(this.screen.width, this.screen.height);
+        this.camera.perspective({ aspect: this.screen.width / this.screen.height });
+        const fov = (this.camera.fov * Math.PI) / 180;
+        const height = 2 * Math.tan(fov / 2) * this.camera.position.z;
+        const width = height * this.camera.aspect;
+        this.viewport = { width, height };
+        if (this.medias) {
+          this.medias.forEach(media => media.onResize({ screen: this.screen, viewport: this.viewport }));
+        }
+      }
+      update() {
+        if (this.isDestroyed) return;
+        this.raf = requestAnimationFrame(this.update);
+        if (!this.isVisible || document.hidden) return;
+
+        this.scroll.current = lerp(this.scroll.current, this.scroll.target, this.scroll.ease);
+        const direction = this.scroll.current > this.scroll.last ? 'right' : 'left';
+        if (this.medias) {
+          this.medias.forEach(media => media.update(this.scroll, direction));
+        }
+        this.renderer.render({ scene: this.scene, camera: this.camera });
+        this.scroll.last = this.scroll.current;
+      }
+      addEventListeners() {
+        window.addEventListener('resize', this.onCheckDebounce);
+        this.container.addEventListener('wheel', this.onWheel, { passive: true });
+        this.container.addEventListener('mousedown', this.onTouchDown);
+        window.addEventListener('mousemove', this.onTouchMove);
+        window.addEventListener('mouseup', this.onTouchUp);
+        this.container.addEventListener('touchstart', this.onTouchDown, { passive: true });
+        this.container.addEventListener('touchmove', this.onTouchMove, { passive: true });
+        this.container.addEventListener('touchend', this.onTouchUp);
+        this.container.addEventListener('keydown', this.onKeyDown);
+      }
+      destroy() {
+        this.isDestroyed = true;
+        if (this.raf) cancelAnimationFrame(this.raf);
+        window.removeEventListener('resize', this.onCheckDebounce);
+        this.container.removeEventListener('wheel', this.onWheel);
+        this.container.removeEventListener('mousedown', this.onTouchDown);
+        window.removeEventListener('mousemove', this.onTouchMove);
+        window.removeEventListener('mouseup', this.onTouchUp);
+        this.container.removeEventListener('touchstart', this.onTouchDown);
+        this.container.removeEventListener('touchmove', this.onTouchMove);
+        this.container.removeEventListener('touchend', this.onTouchUp);
+        this.container.removeEventListener('keydown', this.onKeyDown);
+        if (this.gl) {
+          const loseCtx = this.gl.getExtension('WEBGL_lose_context');
+          if (loseCtx) loseCtx.loseContext();
+        }
+        if (this.gl && this.gl.canvas && this.gl.canvas.parentNode) {
+          this.gl.canvas.parentNode.removeChild(this.gl.canvas);
+        }
+      }
+    }
+
+    const imgApiBase = 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image';
+    const galleryItems = [
+      {
+        image: '海报/24e736f6b372cf4b53a7c24b9ccb3593.jpg',
+        text: '海报设计 01'
+      },
+      {
+        image: '海报/337b3cde.jpg',
+        text: '海报设计 02'
+      },
+      {
+        image: '海报/337b3cdef656951dc332cbdc69440019.jpg',
+        text: '海报设计 03'
+      },
+      {
+        image: '海报/ChatGPT%20Image%202026年5月18日%2015_13_07.png',
+        text: '海报设计 04'
+      },
+      {
+        image: '海报/fc9463be1f4c2490dfc747afce5c0433.jpg',
+        text: '海报设计 05'
+      },
+      {
+        image: '海报/海报1.jpg',
+        text: '海报设计 06'
+      },
+      {
+        image: '海报/海报1.png',
+        text: '海报设计 07'
+      }
+    ];
+
+    const galleryContainer = document.getElementById('circular-gallery');
+    let circularGalleryApp = null;
+
+    // 复用页面已有的 Lightbox 进行放大预览
+    const galleryLightbox = document.getElementById('lightbox');
+    const galleryLightboxImg = document.getElementById('lightbox-image');
+    const galleryLightboxTitle = document.getElementById('lightbox-title');
+    const galleryLightboxDesc = document.getElementById('lightbox-description');
+
+    const openGalleryLightbox = (item) => {
+      if (!galleryLightbox || !item) return;
+      galleryLightboxImg.src = item.image;
+      galleryLightboxTitle.textContent = item.text || '';
+      galleryLightboxDesc.textContent = '';
+      galleryLightbox.classList.add('active');
+    };
+
+    if (galleryContainer) {
+      const visibilityObserver = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (circularGalleryApp) {
+              circularGalleryApp.isVisible = entry.isIntersecting;
+            }
+          });
+        },
+        { threshold: 0 }
+      );
+      visibilityObserver.observe(galleryContainer);
+
+      resolveFont('bold 30px Figtree')
+        .then(resolvedFont => {
+          if (circularGalleryApp) return;
+          circularGalleryApp = new App(galleryContainer, {
+            items: galleryItems,
+            bend: 1,
+            textColor: '#a3a3a3',
+            borderRadius: 0.02,
+            font: resolvedFont,
+            scrollSpeed: 2,
+            scrollEase: 0.05,
+            onItemClick: openGalleryLightbox
+          });
+        })
+        .catch(error => {
+          console.error('CircularGallery init error:', error);
+        });
+    }
+    </script>
+
+    <!-- Stack（IP形象）— Vanilla JS reimplementation of reactbits Stack-JS-CSS -->
+    <script>
+    (function initIPStack() {
+      const container = document.getElementById('ip-stack');
+      if (!container) return;
+      const stackContainer = container.querySelector('.stack-container');
+      if (!stackContainer) return;
+
+      const cards = [
+        {
+          image: 'ip形象/c6d4d88a6b253eb2ce450d731851b7dd.jpg',
+          title: 'IP形象',
+          description: 'IP形象设计作品'
+        },
+        {
+          image: 'ip形象/新ip形象（光小饼）.jpg',
+          title: '光小饼',
+          description: 'IP形象角色设计'
+        },
+        {
+          image: 'ip形象/新ip形象（芋小饺）.jpg',
+          title: '芋小饺',
+          description: 'IP形象角色设计'
+        },
+        {
+          image: 'ip形象/新ip形象（茶小叶）.jpg',
+          title: '茶小叶',
+          description: 'IP形象角色设计'
+        }
+      ];
+
+      // 配置：对应 reactbits Stack 组件 props
+      const SENSITIVITY = 200;        // 拖拽触发回退的阈值
+      const AUTOPLAY_DELAY = 3500;    // 自动播放间隔
+      const SPRING_EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
+      const FLY_EASE = 'cubic-bezier(0.4, 0, 0.6, 1)';
+      const ROTATE_FACTOR = 0.6;      // 拖拽时 rotateX/rotateY 系数
+      const MAX_TILT = 60;            // 最大倾斜角度
+
+      let stack = cards.map((c, i) => ({ id: i + 1, data: c }));
+      let isPaused = false;
+      let isInteracting = false;
+      let isDragging = false;
+      let startX = 0, startY = 0;
+      let currentX = 0, currentY = 0;
+      let activePointerId = null;
+      let autoplayTimer = null;
+
+      function openLightbox(item) {
+        if (!item) return;
+        // 延迟查询：此 script 在 lightbox HTML 之前执行，初始化时元素尚不存在
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-image');
+        const lightboxTitle = document.getElementById('lightbox-title');
+        const lightboxDesc = document.getElementById('lightbox-description');
+        if (!lightbox || !lightboxImg) return;
+        lightboxImg.src = item.image;
+        if (lightboxTitle) lightboxTitle.textContent = item.title || '';
+        if (lightboxDesc) lightboxDesc.textContent = item.description || '';
+        lightbox.classList.add('active');
+      }
+
+      function applyCardTransform(wrap, inner, index, immediate) {
+        const total = stack.length;
+        const rotateZ = (total - index - 1) * 4;
+        const scale = 1 + index * 0.06 - total * 0.06;
+        // 用显式 z-index 控制层叠，避免依赖 DOM 顺序（sendToBack 后 DOM 不重排）
+        wrap.style.zIndex = String(index + 1);
+        inner.style.transition = immediate ? 'none' : 'transform 0.6s ' + SPRING_EASE;
+        inner.style.transform = 'rotateZ(' + rotateZ + 'deg) scale(' + scale + ')';
+        inner.style.transformOrigin = '90% 90%';
+        if (immediate) {
+          // 强制重排以应用无过渡的初始状态
+          inner.offsetHeight;
+          inner.style.transition = 'transform 0.6s ' + SPRING_EASE;
+        }
+      }
+
+      function reapplyAllCardTransforms() {
+        stack.forEach((card, index) => {
+          const wrap = stackContainer.querySelector('.card-rotate[data-id="' + card.id + '"]');
+          const inner = wrap ? wrap.querySelector('.card') : null;
+          if (wrap && inner) applyCardTransform(wrap, inner, index, false);
+        });
+      }
+
+      function getTopCard() {
+        return stack[stack.length - 1];
+      }
+
+      function getTopCardElement() {
+        const top = getTopCard();
+        return top ? stackContainer.querySelector('.card-rotate[data-id="' + top.id + '"]') : null;
+      }
+
+      function sendToBack(id) {
+        const index = stack.findIndex(c => c.id === id);
+        if (index === -1) return;
+        const [card] = stack.splice(index, 1);
+        stack.unshift(card);
+        reapplyAllCardTransforms();
+      }
+
+      // 顶部卡片飞出后回到栈底
+      function animateSendToBack(card, direction) {
+        const wrap = stackContainer.querySelector('.card-rotate[data-id="' + card.id + '"]');
+        if (!wrap) {
+          sendToBack(card.id);
+          return;
+        }
+        const flyX = direction ? direction.x : currentX * 4;
+        const flyY = direction ? direction.y : currentY * 4;
+        const flyRotate = (direction ? direction.x : currentX) * 0.1;
+
+        wrap.classList.add('flying');
+        wrap.style.transition = 'transform 0.55s ' + FLY_EASE + ', opacity 0.55s ease-out';
+        wrap.style.transform = 'translate3d(' + flyX + 'px, ' + flyY + 'px, 0) rotateZ(' + flyRotate + 'deg)';
+        wrap.style.opacity = '0';
+
+        setTimeout(() => {
+          wrap.classList.remove('flying');
+          wrap.style.transition = 'none';
+          wrap.style.transform = '';
+          wrap.style.opacity = '';
+          // 让浏览器记录无变换状态后再恢复过渡
+          wrap.offsetHeight;
+          sendToBack(card.id);
+        }, 560);
+      }
+
+      function render() {
+        stackContainer.innerHTML = '';
+        stack.forEach((card, index) => {
+          const wrap = document.createElement('div');
+          wrap.className = 'card-rotate';
+          wrap.dataset.id = card.id;
+
+          const inner = document.createElement('div');
+          inner.className = 'card';
+
+          const img = document.createElement('img');
+          img.className = 'card-image';
+          img.src = card.data.image;
+          img.alt = card.data.title || '';
+          img.draggable = false;
+
+          inner.appendChild(img);
+          wrap.appendChild(inner);
+          stackContainer.appendChild(wrap);
+
+          applyCardTransform(wrap, inner, index, true);
+        });
+      }
+
+      // 拖拽事件（委托到容器，只响应顶部卡片）
+      let suppressClick = false;
+      let suppressClickTimer = null;
+
+      function flagSuppressClick() {
+        suppressClick = true;
+        clearTimeout(suppressClickTimer);
+        suppressClickTimer = setTimeout(() => { suppressClick = false; }, 200);
+      }
+
+      stackContainer.addEventListener('pointerdown', (e) => {
+        if (isDragging) return;
+        const topEl = getTopCardElement();
+        if (!topEl) return;
+        // 仅当点击命中顶部卡片时才启动拖拽
+        if (e.target.closest('.card-rotate') !== topEl) return;
+
+        isDragging = true;
+        isInteracting = true;
+        activePointerId = e.pointerId;
+        startX = e.clientX;
+        startY = e.clientY;
+        currentX = 0;
+        currentY = 0;
+        topEl.classList.add('dragging');
+        topEl.style.transition = 'none';
+        try { topEl.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+
+      stackContainer.addEventListener('pointermove', (e) => {
+        if (!isDragging || e.pointerId !== activePointerId) return;
+        currentX = e.clientX - startX;
+        currentY = e.clientY - startY;
+        const rotateX = Math.max(-MAX_TILT, Math.min(MAX_TILT, -currentY * ROTATE_FACTOR));
+        const rotateY = Math.max(-MAX_TILT, Math.min(MAX_TILT, currentX * ROTATE_FACTOR));
+        const topEl = getTopCardElement();
+        if (topEl) {
+          topEl.style.transform = 'translate3d(' + currentX + 'px, ' + currentY + 'px, 0) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+        }
+      });
+
+      function endDrag(e) {
+        if (!isDragging) return;
+        if (e && e.pointerId !== activePointerId) return;
+
+        const topEl = getTopCardElement();
+        const topCard = getTopCard();
+        const offset = Math.max(Math.abs(currentX), Math.abs(currentY));
+
+        isDragging = false;
+        if (topEl) topEl.classList.remove('dragging');
+
+        // 有显著移动则抑制随后的 click 事件（避免拖拽误触发灯箱）
+        if (offset > 8) {
+          flagSuppressClick();
+        }
+
+        if (offset > SENSITIVITY && topCard) {
+          animateSendToBack(topCard);
+          setTimeout(() => { isInteracting = false; }, 560);
+        } else if (topEl) {
+          // 回弹到原位
+          topEl.style.transition = 'transform 0.5s ' + SPRING_EASE;
+          topEl.style.transform = '';
+          setTimeout(() => { isInteracting = false; }, 500);
+        } else {
+          isInteracting = false;
+        }
+
+        currentX = 0;
+        currentY = 0;
+        activePointerId = null;
+      }
+
+      stackContainer.addEventListener('pointerup', endDrag);
+      stackContainer.addEventListener('pointercancel', endDrag);
+
+      // 点击顶部卡片打开灯箱（拖拽后会被 suppressClick 抑制）
+      stackContainer.addEventListener('click', (e) => {
+        if (suppressClick || isDragging) return;
+        const topEl = getTopCardElement();
+        const topCard = getTopCard();
+        if (!topEl || !topCard) return;
+        if (e.target.closest('.card-rotate') !== topEl) return;
+        openLightbox(topCard.data);
+      });
+
+      // 自动播放：定时把顶部卡片送到栈底
+      function startAutoplay() {
+        if (autoplayTimer) return;
+        autoplayTimer = setInterval(() => {
+          if (isPaused || isInteracting || isDragging) return;
+          if (stack.length <= 1) return;
+          const topCard = getTopCard();
+          if (!topCard) return;
+          isInteracting = true;
+          // 向上飞出
+          animateSendToBack(topCard, { x: 0, y: -380 });
+          setTimeout(() => { isInteracting = false; }, 620);
+        }, AUTOPLAY_DELAY);
+      }
+
+      function stopAutoplay() {
+        if (autoplayTimer) {
+          clearInterval(autoplayTimer);
+          autoplayTimer = null;
+        }
+      }
+
+      // 悬停暂停（保留以备未来启用自动播放时使用）
+      container.addEventListener('mouseenter', () => { isPaused = true; });
+      container.addEventListener('mouseleave', () => { isPaused = false; });
+
+      // 自动播放已关闭：仅手动拖拽 / 点击触发
+
+      render();
+    })();
+    </script>
+
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightbox-close" aria-label="关闭">&times;</button>
+        <div class="lightbox-content">
+            <img class="lightbox-image" id="lightbox-image" src="" alt="">
+            <div class="lightbox-info">
+                <h3 class="lightbox-title" id="lightbox-title"></h3>
+                <p class="lightbox-description" id="lightbox-description"></p>
+            </div>
+        </div>
+        <div class="lightbox-hint">点击空白处或按 ESC 关闭</div>
+    </div>
+</body>
+</html>
