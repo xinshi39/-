@@ -1450,6 +1450,7 @@
     (function initThreads() {
       const container = document.getElementById('threads-bg');
       if (!container) return;
+      if (window.innerWidth < 768) return;
 
       const renderer = new Renderer({ alpha: true, antialias: true });
       const gl = renderer.gl;
